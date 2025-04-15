@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.inovaparq.api_inovaparq.model.UserModel;
-import br.com.inovaparq.api_inovaparq.repository.UserRepository;
 import br.com.inovaparq.api_inovaparq.service.UserService;
 
 import java.util.List;
@@ -26,26 +25,26 @@ public class UserController {
     @Autowired
     private UserService UserService;
 
-    //Listar todos os usuários
+    // Listar todos os usuários
     @GetMapping
     public List<UserModel> listarTodos() {
         return UserService.findAllUsers();
     }
 
-    //Buscar um usuário pelo ID
+    // Buscar um usuário pelo ID
     @GetMapping("/{id}")
     public UserModel buscarPorId(@PathVariable Long id) {
         Optional<UserModel> UserModel = UserService.findOnyById(id);
         return UserModel.orElse(null);
     }
 
-    //Criar um novo usuário
+    // Criar um novo usuário
     @PostMapping
     public UserModel criarUser(@RequestBody UserModel UserModel) {
         return UserService.newUser(UserModel);
     }
 
-    //Atualizar um usuário existente
+    // Atualizar um usuário existente
     @PutMapping("/{id}")
     public UserModel atualizarUser(@PathVariable Long id, @RequestBody UserModel UserAtualizado) {
         return UserService.updateUser(id, UserAtualizado);
