@@ -23,6 +23,9 @@ public class UserModel {
     @Column(unique = true)
     private Number cpf;
 
+    @Column(length = 512)
+    private String token;
+
     private Boolean ativo = true;
     private Boolean admin = false;
 
@@ -73,6 +76,14 @@ public class UserModel {
 
     public void setCpf(Number cpf) {
         this.cpf = cpf;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Boolean getAtivo() {
