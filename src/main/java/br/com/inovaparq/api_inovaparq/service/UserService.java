@@ -5,79 +5,77 @@ import br.com.inovaparq.api_inovaparq.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@CrossOrigin(origins = "http://localhost:5173")
 public class UserService {
 
     @Autowired
-    private UserRepository UserRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Optional<UserModel> findOnyByUserName(String username) {
-        return UserRepository.findByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     public List<UserModel> findAllUsers() {
-        return UserRepository.findAll();
+        return userRepository.findAll();
     }
 
     public Optional<UserModel> findOnyById(Long id) {
-        return UserRepository.findById(id);
+        return userRepository.findById(id);
     }
 
-    public UserModel newUser(UserModel User) {
-        User.setSenha(passwordEncoder.encode(User.getSenha()));
-        return UserRepository.save(User);
+    public UserModel newUser(UserModel user) {
+        user.setSenha(passwordEncoder.encode(user.getSenha()));
+        return userRepository.save(user);
     }
 
     public UserModel saveUser(UserModel user) {
-        return UserRepository.save(user);
+        return userRepository.save(user);
     }
 
     public void deleteUser(Long id) {
-        UserRepository.deleteById(id);
+        userRepository.deleteById(id);
     }
 
-    public UserModel updateUser(Long id, UserModel UserAtualizado) {
-        return UserRepository.findById(id)
-                .map(UserModel -> {
-                    UserModel.setUsername(UserAtualizado.getUsername());
-                    UserModel.setNome(UserAtualizado.getNome());
-                    UserModel.setEmail(UserAtualizado.getEmail());
-                    UserModel.setAtivo(UserAtualizado.getAtivo());
-                    return UserRepository.save(UserModel);
+    public UserModel updateUser(Long id, UserModel userAtualizado) {
+        return userRepository.findById(id)
+                .map(userModel -> {
+                    userModel.setUsername(userAtualizado.getUsername());
+                    userModel.setNome(userAtualizado.getNome());
+                    userModel.setEmail(userAtualizado.getEmail());
+                    userModel.setAtivo(userAtualizado.getAtivo());
+                    return userRepository.save(userModel);
                 })
                 .orElseGet(() -> {
-                    UserAtualizado.setId(id);
-                    return UserRepository.save(UserAtualizado);
+                    userAtualizado.setId(id);
+                    return userRepository.save(userAtualizado);
                 });
     }
 
     public UserModel updatePasswordUser(Long id, String senha) {
-        return UserRepository.findById(id)
-                .map(UserModel -> {
-                    UserModel.setSenha(senha);
-                    return UserRepository.save(UserModel);
+        return userRepository.findById(id)
+                .map(userModel -> {
+                    userModel.setSenha(passwordEncoder.encode(senha));
+                    return userRepository.save(userModel);
                 })
                 .orElse(null);
     }
 
-    public UserModel updateStatusUser(Long id, UserModel UserAtualizado) {
-        return UserRepository.findById(id)
-                .map(UserModel -> {
-                    UserModel.setAtivo(UserAtualizado.getAtivo());
-                    return UserRepository.save(UserModel);
+    public UserModel updateStatusUser(Long id, UserModel userAtualizado) {
+        return userRepository.findById(id)
+                .map(userModel -> {
+                    userModel.setAtivo(userAtualizado.getAtivo());
+                    return userRepository.save(userModel);
                 })
                 .orElseGet(() -> {
-                    UserAtualizado.setId(id);
-                    return UserRepository.save(UserAtualizado);
+                    userAtualizado.setId(id);
+                    return userRepository.save(userAtualizado);
                 });
     }
 }

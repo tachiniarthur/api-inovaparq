@@ -1,17 +1,19 @@
 package br.com.inovaparq.api_inovaparq.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
 
 @Entity
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String nome;
+
     private String senha;
 
     @Column(unique = true)
@@ -20,8 +22,14 @@ public class UserModel {
     @Column(unique = true)
     private String email;
 
-    @Column(unique = true)
-    private Number cpf;
+    @Column(unique = true, length = 11)
+    private String cpf;
+
+    @Column(nullable = true)
+    private String foto;
+
+    @Column(length = 11)
+    private String telefone;
 
     @Column(length = 512)
     private String token;
@@ -38,12 +46,12 @@ public class UserModel {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getNome() {
+        return nome;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getSenha() {
@@ -54,12 +62,12 @@ public class UserModel {
         this.senha = senha;
     }
 
-    public String getNome() {
-        return nome;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -70,12 +78,28 @@ public class UserModel {
         this.email = email;
     }
 
-    public Number getCpf() {
+    public String getCpf() {
         return cpf;
     }
 
-    public void setCpf(Number cpf) {
+    public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
     }
 
     public String getToken() {
