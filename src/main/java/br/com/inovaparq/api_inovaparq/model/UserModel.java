@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class UserModel {
@@ -36,6 +38,10 @@ public class UserModel {
 
     private Boolean ativo = true;
     private Boolean admin = false;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private CompanyModel empresa;
 
     // Getters e Setters
     public Long getId() {

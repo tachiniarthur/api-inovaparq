@@ -40,6 +40,7 @@ public class UserController {
     // Atualizar um usuário existente
     @PutMapping("/{id}")
     public ResponseEntity<UserModel> atualizarUser(@PathVariable Long id, @RequestBody UserModel userAtualizado) {
+        System.out.println("Atualizando usuário com ID: " + id);
         UserModel updatedUser = userService.updateUser(id, userAtualizado);
         return ResponseEntity.ok(updatedUser);
     }

@@ -1,81 +1,29 @@
-package br.com.inovaparq.api_inovaparq.model;
+package br.com.inovaparq.api_inovaparq.controller.dto;
 
-import jakarta.persistence.*;
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
-@Entity
-public class CompanyModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column(nullable = false)
+public class CompanyRequestDTO {
     private String name;
-
-    @Column(nullable = false, unique = true)
     private String cnpj;
-
-    // Endereço
-    @Column(nullable = false)
     private String cep;
-
-    @Column(nullable = false)
     private String logradouro;
-
-    @Column(nullable = false)
     private String numero;
-
     private String complemento;
-
-    @Column(nullable = false)
     private String bairro;
-
-    @Column(nullable = false)
     private String cidade;
-
-    @Column(nullable = false)
     private String uf;
-
-    private Boolean ativo = true;
-
-    // Dados de contato
     private String telefone;
     private String email;
     private String site;
-
-    // Responsável legal (relacionamento com usuário)
-    @ManyToOne
-    @JoinColumn(name = "responsavel_id")
-    private UserModel responsavel;
-
-    @OneToMany(mappedBy = "empresa")
-    private List<UserModel> usuarios;
-
-    // Dados fiscais
     private String inscricaoEstadual;
     private String inscricaoMunicipal;
-
-    // Observações
     private String observacao;
-
-    @Column(nullable = true)
-    private String alvaraFuncionamento;
-
-    @Column(nullable = true)
-    private String inscricaoEstadualArquivo;
-
-    @Column(nullable = true)
-    private String comprovanteEndereco;
+    private Long responsavelId;
+    private MultipartFile alvaraFuncionamento;
+    private MultipartFile inscricaoEstadualArquivo;
+    private MultipartFile comprovanteEndereco;
 
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -148,14 +96,6 @@ public class CompanyModel {
         this.uf = uf;
     }
 
-    public Boolean getAtivo() {
-        return ativo;
-    }
-
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
-    }
-
     public String getTelefone() {
         return telefone;
     }
@@ -178,22 +118,6 @@ public class CompanyModel {
 
     public void setSite(String site) {
         this.site = site;
-    }
-
-    public UserModel getResponsavel() {
-        return responsavel;
-    }
-
-    public void setResponsavel(UserModel responsavel) {
-        this.responsavel = responsavel;
-    }
-
-    public List<UserModel> getUsuarios() {
-        return usuarios;
-    }
-
-    public void setUsuarios(List<UserModel> usuarios) {
-        this.usuarios = usuarios;
     }
 
     public String getInscricaoEstadual() {
@@ -220,27 +144,35 @@ public class CompanyModel {
         this.observacao = observacao;
     }
 
-    public String getAlvaraFuncionamento() {
+    public Long getResponsavelId() {
+        return responsavelId;
+    }
+
+    public void setResponsavelId(Long responsavelId) {
+        this.responsavelId = responsavelId;
+    }
+
+    public MultipartFile getAlvaraFuncionamento() {
         return alvaraFuncionamento;
     }
 
-    public void setAlvaraFuncionamento(String alvaraFuncionamento) {
+    public void setAlvaraFuncionamento(MultipartFile alvaraFuncionamento) {
         this.alvaraFuncionamento = alvaraFuncionamento;
     }
 
-    public String getInscricaoEstadualArquivo() {
+    public MultipartFile getInscricaoEstadualArquivo() {
         return inscricaoEstadualArquivo;
     }
 
-    public void setInscricaoEstadualArquivo(String inscricaoEstadualArquivo) {
+    public void setInscricaoEstadualArquivo(MultipartFile inscricaoEstadualArquivo) {
         this.inscricaoEstadualArquivo = inscricaoEstadualArquivo;
     }
 
-    public String getComprovanteEndereco() {
+    public MultipartFile getComprovanteEndereco() {
         return comprovanteEndereco;
     }
 
-    public void setComprovanteEndereco(String comprovanteEndereco) {
+    public void setComprovanteEndereco(MultipartFile comprovanteEndereco) {
         this.comprovanteEndereco = comprovanteEndereco;
     }
 }
