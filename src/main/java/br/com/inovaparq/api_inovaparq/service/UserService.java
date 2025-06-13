@@ -67,15 +67,13 @@ public class UserService {
                 .orElse(null);
     }
 
-    public UserModel updateStatusUser(Long id, UserModel userAtualizado) {
+    public UserModel updateStatusUser(Long id) {
         return userRepository.findById(id)
-                .map(userModel -> {
-                    userModel.setAtivo(userAtualizado.getAtivo());
-                    return userRepository.save(userModel);
+                .map(user -> {
+                    user.setAtivo(!user.getAtivo());
+                    return userRepository.save(user);
                 })
-                .orElseGet(() -> {
-                    userAtualizado.setId(id);
-                    return userRepository.save(userAtualizado);
-                });
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
     }
+
 }

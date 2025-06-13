@@ -1,12 +1,7 @@
 package br.com.inovaparq.api_inovaparq.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class UserModel {
@@ -37,7 +32,13 @@ public class UserModel {
     private String token;
 
     private Boolean ativo = true;
-    private Boolean admin = false;
+    private Boolean admin = true;
+
+    @Column(nullable = true)
+    private String cargo;
+
+    @Column(name = "data_nascimento", nullable = true)
+    private LocalDate dataNascimento;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
@@ -130,5 +131,29 @@ public class UserModel {
 
     public void setAdmin(Boolean admin) {
         this.admin = admin;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public CompanyModel getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(CompanyModel empresa) {
+        this.empresa = empresa;
     }
 }

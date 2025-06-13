@@ -25,22 +25,22 @@ public class CompanyController {
     @Autowired
     private UserRepository userRepository;
 
-    // Listar todas as empresas
-    @GetMapping
-    public List<CompanyModel> listarTodas(@PathVariable Long userId) {
-        Optional<UserModel> user = userRepository.findById(userId);
+    // // Listar todas as empresas
+    // @GetMapping
+    // public List<CompanyModel> listarTodas(@PathVariable Long userId) {
+    //     Optional<UserModel> user = userRepository.findById(userId);
 
-        if (user.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado com ID: " + userId);
-        }else {
-            UserModel userModel = user.get();
-            if (!userModel.isAdmin()) {
-                throw new RuntimeException("Usuário não tem permissão para acessar esta rota.");
-            }
-        }
+    //     if (user.isEmpty()) {
+    //         throw new RuntimeException("Usuário não encontrado com ID: " + userId);
+    //     }else {
+    //         UserModel userModel = user.get();
+    //         if (!userModel.isAdmin()) {
+    //             throw new RuntimeException("Usuário não tem permissão para acessar esta rota.");
+    //         }
+    //     }
         
-        return companyService.findAllCompanies();
-    }
+    //     return companyService.findAllCompanies();
+    // }
 
     // Buscar empresa por ID
     @GetMapping("/{id}")
