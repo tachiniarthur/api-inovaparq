@@ -30,7 +30,7 @@ public class LoginController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<?> efetuarLogin(@RequestBody LoginRequest loginRequest) {
         Optional<UserModel> userModel = UserService.findOnyByUserName(loginRequest.getUsername());
 
@@ -54,14 +54,9 @@ public class LoginController {
                     user.getAdmin()
                 );
 
-
-
                 return ResponseEntity.ok(responseDTO);
-            } else {
-                return ResponseEntity.status(401).body("Senha incorreta!");
             }
-        } else {
-            return ResponseEntity.status(404).body("Usuário não encontrado!");
         }
+        return ResponseEntity.status(401).body("Usuário ou senha incorretos!");
     }
 }
