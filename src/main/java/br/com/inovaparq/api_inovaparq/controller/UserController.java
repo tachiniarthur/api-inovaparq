@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import br.com.inovaparq.api_inovaparq.controller.dto.UserCreateDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.UserResponseDTO;
 
 import br.com.inovaparq.api_inovaparq.model.UserModel;
 import br.com.inovaparq.api_inovaparq.service.UserService;
@@ -41,9 +43,13 @@ public class UserController {
 
     // Criar um novo usuário
     @PostMapping
-    public ResponseEntity<UserModel> criarUser(@RequestBody UserModel userModel) {
-        UserModel createdUser = userService.newUser(userModel);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<?> criarUser(@RequestBody UserCreateDTO userCreateDTO) {
+        try {
+            UserResponseDTO createdUser = userService.newUser(userCreateDTO);
+            return ResponseEntity.ok(createdUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // Atualizar um usuário existente

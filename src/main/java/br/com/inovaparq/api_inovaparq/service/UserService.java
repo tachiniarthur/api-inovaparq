@@ -1,5 +1,7 @@
 package br.com.inovaparq.api_inovaparq.service;
 
+import br.com.inovaparq.api_inovaparq.controller.dto.UserCreateDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.UserResponseDTO;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
 import br.com.inovaparq.api_inovaparq.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,32 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public UserModel newUser(UserModel user) {
-        user.setSenha(passwordEncoder.encode(user.getSenha()));
-        return userRepository.save(user);
+    public UserResponseDTO newUser(UserCreateDTO dto) {
+        if (!dto.getSenha().equals(dto.getConfirmacaoSenha())) {
+            throw new IllegalArgumentException("As senhas não coincidem.");
+        }
+
+        UserModel user = new UserModel();
+        user.setNome(dto.getNome());
+        user.setUsername(dto.getUsername());
+        user.setSenha(passwordEncoder.encode(dto.getSenha()));
+        user.setAtivo(true);
+        user.setAdmin(false);
+
+        UserModel saved = userRepository.save(user);
+
+        return new UserResponseDTO(
+            saved.getId(),
+            saved.getNome(),
+            saved.getUsername(),
+            saved.getEmail(),
+            saved.getCpf(),
+            saved.getFoto(),
+            saved.getTelefone(),
+            saved.getToken(),
+            saved.getAtivo(),
+            saved.getAdmin()
+        );
     }
 
     public UserModel saveUser(UserModel user) {
