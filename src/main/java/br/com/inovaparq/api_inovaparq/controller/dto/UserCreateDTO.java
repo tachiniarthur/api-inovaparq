@@ -1,16 +1,16 @@
 package br.com.inovaparq.api_inovaparq.controller.dto;
 
 public class UserCreateDTO {
-    private String nome;
+    private String name;
     private String username;
-    private String senha;
-    private String confirmacaoSenha;
+    private String password;
+    private String confirm_password;
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
     public String getUsername() {
         return username;
@@ -18,16 +18,16 @@ public class UserCreateDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-    public String getSenha() {
-        return senha;
+    public String getPassword() {
+        return password;
     }
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setPassword(String password) {
+        this.password = password;
     }
-    public String getConfirmacaoSenha() {
-        return confirmacaoSenha;
+    public String getConfirm_password() {
+        return confirm_password;
     }
-    public void setConfirmacaoSenha(String confirmacaoSenha) {
-        this.confirmacaoSenha = confirmacaoSenha;
+    public void setConfirm_password(String confirm_password) {
+        this.confirm_password = confirm_password;
     }
 }

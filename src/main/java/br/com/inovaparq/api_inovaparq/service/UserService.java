@@ -32,30 +32,31 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+
     public UserResponseDTO newUser(UserCreateDTO dto) {
-        if (!dto.getSenha().equals(dto.getConfirmacaoSenha())) {
-            throw new IllegalArgumentException("As senhas não coincidem.");
+        if (!dto.getPassword().equals(dto.getConfirm_password())) {
+            throw new IllegalArgumentException("Passwords do not match.");
         }
 
         UserModel user = new UserModel();
-        user.setNome(dto.getNome());
+        user.setName(dto.getName());
         user.setUsername(dto.getUsername());
-        user.setSenha(passwordEncoder.encode(dto.getSenha()));
-        user.setAtivo(true);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setActive(true);
         user.setAdmin(false);
 
         UserModel saved = userRepository.save(user);
 
         return new UserResponseDTO(
             saved.getId(),
-            saved.getNome(),
+            saved.getName(),
             saved.getUsername(),
             saved.getEmail(),
             saved.getCpf(),
-            saved.getFoto(),
-            saved.getTelefone(),
+            saved.getPhoto(),
+            saved.getPhone(),
             saved.getToken(),
-            saved.getAtivo(),
+            saved.getActive(),
             saved.getAdmin()
         );
     }
@@ -72,9 +73,9 @@ public class UserService {
         return userRepository.findById(id)
                 .map(userModel -> {
                     userModel.setUsername(userAtualizado.getUsername());
-                    userModel.setNome(userAtualizado.getNome());
+                    userModel.setName(userAtualizado.getName());
                     userModel.setEmail(userAtualizado.getEmail());
-                    userModel.setAtivo(userAtualizado.getAtivo());
+                    userModel.setActive(userAtualizado.getActive());
                     return userRepository.save(userModel);
                 })
                 .orElseGet(() -> {
@@ -83,10 +84,10 @@ public class UserService {
                 });
     }
 
-    public UserModel updatePasswordUser(Long id, String senha) {
+    public UserModel updatePasswordUser(Long id, String password) {
         return userRepository.findById(id)
                 .map(userModel -> {
-                    userModel.setSenha(passwordEncoder.encode(senha));
+                    userModel.setPassword(passwordEncoder.encode(password));
                     return userRepository.save(userModel);
                 })
                 .orElse(null);
@@ -95,7 +96,7 @@ public class UserService {
     public UserModel updateStatusUser(Long id) {
         return userRepository.findById(id)
                 .map(user -> {
-                    user.setAtivo(!user.getAtivo());
+                    user.setActive(!user.getActive());
                     return userRepository.save(user);
                 })
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));

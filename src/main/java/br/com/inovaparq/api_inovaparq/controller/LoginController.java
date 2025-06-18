@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+// import org.springframework.web.bind.annotation.GetMapping;
+// import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,21 +36,21 @@ public class LoginController {
 
         if (userModel.isPresent()) {
             UserModel user = userModel.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), user.getSenha())) {
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 String token = UUID.randomUUID().toString();
                 user.setToken(token);
                 UserService.saveUser(user);
 
                 UserResponseDTO responseDTO = new UserResponseDTO(
                     user.getId(),
-                    user.getNome(),
+                    user.getName(),
                     user.getUsername(),
                     user.getEmail(),
                     String.valueOf(user.getCpf()),
-                    user.getFoto(),
-                    user.getTelefone(),
+                    user.getPhoto(),
+                    user.getPhone(),
                     user.getToken(),
-                    user.getAtivo(),
+                    user.getActive(),
                     user.getAdmin()
                 );
 

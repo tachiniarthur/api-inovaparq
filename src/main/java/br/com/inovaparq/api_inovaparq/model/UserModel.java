@@ -9,9 +9,9 @@ public class UserModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String nome;
+    private String name;
 
-    private String senha;
+    private String password;
 
     @Column(unique = true)
     private String username;
@@ -23,26 +23,26 @@ public class UserModel {
     private String cpf;
 
     @Column(nullable = true)
-    private String foto;
+    private String photo;
 
     @Column(length = 11)
-    private String telefone;
+    private String phone;
 
     @Column(length = 512)
     private String token;
 
-    private Boolean ativo = true;
+    private Boolean active = true;
     private Boolean admin = true;
 
     @Column(nullable = true)
-    private String cargo;
+    private String role;
 
     @Column(name = "data_nascimento", nullable = true)
-    private LocalDate dataNascimento;
+    private LocalDate birthdate;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
-    private CompanyModel empresa;
+    private CompanyModel company;
 
     // Getters e Setters
     public Long getId() {
@@ -53,20 +53,20 @@ public class UserModel {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getSenha() {
-        return senha;
+    public String getPassword() {
+        return password;
     }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername() {
@@ -93,20 +93,20 @@ public class UserModel {
         this.cpf = cpf;
     }
 
-    public String getFoto() {
-        return foto;
+    public String getPhoto() {
+        return photo;
     }
 
-    public void setFoto(String foto) {
-        this.foto = foto;
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getToken() {
@@ -117,12 +117,12 @@ public class UserModel {
         this.token = token;
     }
 
-    public Boolean getAtivo() {
-        return ativo;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public Boolean getAdmin() {
@@ -133,27 +133,27 @@ public class UserModel {
         this.admin = admin;
     }
 
-    public String getCargo() {
-        return cargo;
+    public String getRole() {
+        return role;
     }
 
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
+    public void setRole(String role) {
+        this.role = role;
     }
 
-    public LocalDate getDataNascimento() {
-        return dataNascimento;
+    public LocalDate getbirthdate() {
+        return birthdate;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) {
-        this.dataNascimento = dataNascimento;
+    public void setbirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
     }
 
-    public CompanyModel getEmpresa() {
-        return empresa;
+    public CompanyModel getCompany() {
+        return company;
     }
 
-    public void setEmpresa(CompanyModel empresa) {
-        this.empresa = empresa;
+    public void setCompany(CompanyModel company) {
+        this.company = company;
     }
 }
