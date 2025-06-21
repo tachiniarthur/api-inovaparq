@@ -48,7 +48,7 @@ public class CompanyModel {
     @JoinColumn(name = "responsavel_id")
     private UserModel responsavel;
 
-    @OneToMany(mappedBy = "empresa")
+    @OneToMany(mappedBy = "company")
     private List<UserModel> usuarios;
 
     // Dados fiscais
@@ -66,6 +66,10 @@ public class CompanyModel {
 
     @Column(nullable = true)
     private String comprovanteEndereco;
+
+    // Novo relacionamento com status da empresa
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CompanyStatusModel> statuses;
 
     // Getters e Setters
     public Long getId() {
@@ -242,5 +246,13 @@ public class CompanyModel {
 
     public void setComprovanteEndereco(String comprovanteEndereco) {
         this.comprovanteEndereco = comprovanteEndereco;
+    }
+
+    public List<CompanyStatusModel> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<CompanyStatusModel> statuses) {
+        this.statuses = statuses;
     }
 }
