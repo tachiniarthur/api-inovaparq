@@ -74,4 +74,10 @@ public class CompanyController {
     public void deletarEmpresa(@PathVariable Long id) {
         companyService.deleteCompany(id);
     }
+
+    // Mudar status da empresa no kanban, recebendo o id e o novo slug da empresa
+    @PutMapping("/kanban-status/{id}")
+    public CompanyModel mudarStatusKanban(@PathVariable Long id, @RequestParam String novoSlug) {
+        return companyService.updateKanbanStatus(id, novoSlug);
+    }
 }

@@ -3,8 +3,10 @@ package br.com.inovaparq.api_inovaparq.service;
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
 import br.com.inovaparq.api_inovaparq.model.CompanyModel;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
+import br.com.inovaparq.api_inovaparq.model.CompanyStatusModel;
 import br.com.inovaparq.api_inovaparq.repository.CompanyRepository;
 import br.com.inovaparq.api_inovaparq.repository.UserRepository;
+import br.com.inovaparq.api_inovaparq.repository.CompanyStatusRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class CompanyService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CompanyStatusRepository companyStatusRepository;
 
     public List<CompanyModel> findAllCompanies() {
         return companyRepository.findAll();
@@ -125,5 +130,16 @@ public class CompanyService {
                     companyAtualizada.setId(id);
                     return companyRepository.save(companyAtualizada);
                 });
+    }
+
+    public CompanyModel updateKanbanStatus(Long id, String slug) {
+        CompanyModel company = companyRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Empresa não encontrada com ID: " + id));
+        CompanyStatusModel status = companyStatusRepository.findBySlug(slug)
+            .orElseThrow(() -> new RuntimeException("Status não encontrado para o slug: " + slug));
+        company.getStatuses().clear();
+        company.getStatuses().add(status);
+        status.setCompany(company);
+        return companyRepository.save(company);
     }
 }
