@@ -5,6 +5,8 @@ public class UserCreateDTO {
     private String username;
     private String password;
     private String confirm_password;
+    private String email;
+    private String cpf;  
 
     public String getName() {
         return name;
@@ -29,5 +31,17 @@ public class UserCreateDTO {
     }
     public void setConfirm_password(String confirm_password) {
         this.confirm_password = confirm_password;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public String getCpf() {
+        return cpf;
+    }
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 }

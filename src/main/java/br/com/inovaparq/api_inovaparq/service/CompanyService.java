@@ -1,6 +1,7 @@
 package br.com.inovaparq.api_inovaparq.service;
 
-import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
+// import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.CompanyFullRequestDTO;
 import br.com.inovaparq.api_inovaparq.model.CompanyModel;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
 import br.com.inovaparq.api_inovaparq.model.CompanyStatusModel;
@@ -44,42 +45,44 @@ public class CompanyService {
         companyRepository.deleteById(id);
     }
 
-    public CompanyModel createCompany(CompanyRequestDTO dto) throws IOException {
+    public CompanyModel createCompany(CompanyFullRequestDTO dto) {
+        CompanyFullRequestDTO.CompanyData companyData = dto.getCompanyData();
+        CompanyFullRequestDTO.AddressData addressData = dto.getAddressData();
+        CompanyFullRequestDTO.ResponsibleData responsibleData = dto.getResponsibleData();
+
         CompanyModel company = new CompanyModel();
-        company.setName(dto.getName());
-        company.setCnpj(dto.getCnpj());
-        company.setCep(dto.getCep());
-        company.setLogradouro(dto.getLogradouro());
-        company.setNumero(dto.getNumero());
-        company.setComplemento(dto.getComplemento());
-        company.setBairro(dto.getBairro());
-        company.setCidade(dto.getCidade());
-        company.setUf(dto.getUf());
-        company.setTelefone(dto.getTelefone());
-        company.setEmail(dto.getEmail());
-        company.setSite(dto.getSite());
-        company.setInscricaoEstadual(dto.getInscricaoEstadual());
-        company.setInscricaoMunicipal(dto.getInscricaoMunicipal());
-        company.setObservacao(dto.getObservacao());
+        company.setName(companyData.getCompanyName());
+        company.setCnpj(companyData.getCnpj());
+        company.setInscricaoEstadual(companyData.getStateRegistration());
+        company.setInscricaoMunicipal(companyData.getMunicipalRegistration());
+        company.setTelefone(companyData.getPhone());
+        company.setEmail(companyData.getEmail());
+        company.setSite(companyData.getWebsite());
+        company.setObservacao(companyData.getBusinessActivity());
+        company.setAlvaraFuncionamento(companyData.getOperatingLicense());
+        company.setInscricaoEstadualArquivo(companyData.getRegistrationDocument());
+        company.setComprovanteEndereco(companyData.getAddressProof());
 
-        if (dto.getResponsavelId() != null) {
-            Optional<UserModel> responsavel = userRepository.findById(dto.getResponsavelId());
-            responsavel.ifPresent(company::setResponsavel);
+        // Endereço
+        company.setCep(addressData.getCep());
+        company.setLogradouro(addressData.getAddress());
+        company.setNumero(addressData.getNumber());
+        company.setComplemento(addressData.getComplement());
+        company.setBairro(addressData.getNeighborhood());
+        company.setCidade(addressData.getCity());
+        company.setUf(addressData.getState());
+
+        // Responsável
+        if (responsibleData != null && responsibleData.getUserId() != null && !responsibleData.getUserId().isEmpty()) {
+            try {
+                Long userId = Long.parseLong(responsibleData.getUserId());
+                Optional<UserModel> responsavel = userRepository.findById(userId);
+                responsavel.ifPresent(company::setResponsavel);
+            } catch (NumberFormatException ignored) {}
         }
 
-        // Aqui você implementa a lógica para salvar os arquivos (em disco, S3, etc.)
-        if (dto.getAlvaraFuncionamento() != null && !dto.getAlvaraFuncionamento().isEmpty()) {
-            String filePath = salvarArquivo(dto.getAlvaraFuncionamento());
-            company.setAlvaraFuncionamento(filePath);
-        }
-        if (dto.getInscricaoEstadualArquivo() != null && !dto.getInscricaoEstadualArquivo().isEmpty()) {
-            String filePath = salvarArquivo(dto.getInscricaoEstadualArquivo());
-            company.setInscricaoEstadualArquivo(filePath);
-        }
-        if (dto.getComprovanteEndereco() != null && !dto.getComprovanteEndereco().isEmpty()) {
-            String filePath = salvarArquivo(dto.getComprovanteEndereco());
-            company.setComprovanteEndereco(filePath);
-        }
+        // Se for novo responsável, criar lógica para criar novo usuário e associar
+        // (implemente conforme sua regra de negócio)
 
         return companyRepository.save(company);
     }

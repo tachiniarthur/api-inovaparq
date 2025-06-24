@@ -39,6 +39,17 @@ public class UserService {
             throw new IllegalArgumentException("Passwords do not match.");
         }
 
+        // Verificações de unicidade
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new IllegalArgumentException("Username já está em uso.");
+        }
+        if (dto.getEmail() != null && userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("Email já está em uso.");
+        }
+        if (dto.getCpf() != null && userRepository.existsByCpf(dto.getCpf())) {
+            throw new IllegalArgumentException("CPF já está em uso.");
+        }
+
         UserModel user = new UserModel();
         user.setName(dto.getName());
         user.setUsername(dto.getUsername());
@@ -48,6 +59,10 @@ public class UserService {
 
         String token = UUID.randomUUID().toString();
         user.setToken(token);
+
+        // Adicione estes campos se existirem no DTO
+        user.setEmail(dto.getEmail());
+        user.setCpf(dto.getCpf());
 
         UserModel saved = userRepository.save(user);
 

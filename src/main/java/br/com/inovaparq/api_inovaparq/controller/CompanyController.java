@@ -1,6 +1,7 @@
 package br.com.inovaparq.api_inovaparq.controller;
 
-import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.CompanyFullRequestDTO;
+// import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
 import br.com.inovaparq.api_inovaparq.model.CompanyModel;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
 import br.com.inovaparq.api_inovaparq.repository.UserRepository;
@@ -8,7 +9,7 @@ import br.com.inovaparq.api_inovaparq.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartException;
+// import org.springframework.web.multipart.MultipartException;
 // import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -57,12 +58,10 @@ public class CompanyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCompany(@ModelAttribute CompanyRequestDTO requestDTO) {
+    public ResponseEntity<?> createCompany(@RequestBody CompanyFullRequestDTO requestDTO) {
         try {
             CompanyModel savedCompany = companyService.createCompany(requestDTO);
             return ResponseEntity.ok(savedCompany);
-        } catch (MultipartException e) {
-            return ResponseEntity.badRequest().body("Erro ao processar os arquivos: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Erro inesperado: " + e.getMessage());
         }

@@ -56,16 +56,21 @@ public class CompanyModel {
     private String inscricaoMunicipal;
 
     // Observações
-    private String observacao;
-
+    @Lob
     @Column(nullable = true)
     private String alvaraFuncionamento;
 
+    @Lob
     @Column(nullable = true)
     private String inscricaoEstadualArquivo;
 
+    @Lob
     @Column(nullable = true)
     private String comprovanteEndereco;
+
+    @Lob
+    @Column(nullable = true)
+    private String observacao;
 
     // Novo relacionamento com status da empresa
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
