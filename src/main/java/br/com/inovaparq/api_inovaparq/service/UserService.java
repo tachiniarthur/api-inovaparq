@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -44,6 +45,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setActive(true);
         user.setAdmin(false);
+
+        String token = UUID.randomUUID().toString();
+        user.setToken(token);
 
         UserModel saved = userRepository.save(user);
 

@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
-import org.springframework.web.multipart.MultipartFile;
+// import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -28,13 +31,21 @@ public class CompanyController {
     @GetMapping("/list/{userId}")
     public List<CompanyModel> listarTodas(@PathVariable Long userId) {
         UserModel user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Usuário não encontrado com ID: " + userId));
 
         if (Boolean.TRUE.equals(user.getAdmin())) {
-            return companyService.findAllCompanies();
+            List<CompanyModel> empresas = companyService.findAllCompanies();
+            if (empresas.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
+            }
+            return empresas;
         } else {
             CompanyModel empresa = user.getCompany();
-            return empresa != null ? List.of(empresa) : List.of();
+            if (empresa == null) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
+            }
+            return List.of(empresa);
         }
     }
 
