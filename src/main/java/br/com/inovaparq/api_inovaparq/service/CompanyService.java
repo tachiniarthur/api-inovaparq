@@ -50,6 +50,14 @@ public class CompanyService {
         CompanyFullRequestDTO.AddressData addressData = dto.getAddressData();
         CompanyFullRequestDTO.ResponsibleData responsibleData = dto.getResponsibleData();
 
+        Optional<CompanyModel> existingCompany = companyRepository.findAll()
+            .stream()
+            .filter(c -> c.getCnpj().equals(companyData.getCnpj()))
+            .findFirst();
+        if (existingCompany.isPresent()) {
+            throw new RuntimeException("Já existe uma empresa cadastrada com este CNPJ.");
+        }
+
         CompanyModel company = new CompanyModel();
         company.setName(companyData.getCompanyName());
         company.setCnpj(companyData.getCnpj());
@@ -79,10 +87,17 @@ public class CompanyService {
                 Optional<UserModel> responsavel = userRepository.findById(userId);
                 responsavel.ifPresent(company::setResponsavel);
             } catch (NumberFormatException ignored) {}
-        }
+        } else if (responsibleData != null && (responsibleData.getUserId() == null || responsibleData.getUserId().isEmpty())) {
+            // Se for novo responsável, criar novo usuário e associar
+            UserModel novoResponsavel = new UserModel();
+            novoResponsavel.setName(responsibleData.getName());
+            novoResponsavel.setEmail(responsibleData.getEmail());
+            novoResponsavel.setPhone(responsibleData.getPhone());
+            // Adicione outros campos necessários conforme o modelo UserModel
 
-        // Se for novo responsável, criar lógica para criar novo usuário e associar
-        // (implemente conforme sua regra de negócio)
+            UserModel savedResponsavel = userRepository.save(novoResponsavel);
+            company.setResponsavel(savedResponsavel);
+        }
 
         return companyRepository.save(company);
     }

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,26 +97,38 @@ public class UserController {
 
     // Atualizar um usuário existente
     @PutMapping("/{id}")
-    public ResponseEntity<DefaultResponseDTO<UserResponseDTO>> atualizarUser(
+    public ResponseEntity<DefaultResponseDTO<?>> atualizarUser(
             @PathVariable Long id, 
             @RequestBody UserModel userAtualizado) {
-        UserModel updatedUser = userService.updateUser(id, userAtualizado);
-        UserResponseDTO userDTO = new UserResponseDTO(
-                updatedUser.getId(),
-                updatedUser.getName(),
-                updatedUser.getUsername(),
-                updatedUser.getEmail(),
-                updatedUser.getCpf(),
-                updatedUser.getPhoto(),
-                updatedUser.getPhone(),
-                updatedUser.getToken(),
-                updatedUser.getActive(),
-                updatedUser.getAdmin());
-        
-        DefaultResponseDTO<UserResponseDTO> response = new DefaultResponseDTO<>(
-                "Usuário atualizado com sucesso!",
-                userDTO);
-        return ResponseEntity.ok(response);
+        try {
+            UserModel updatedUser = userService.updateUser(id, userAtualizado);
+            UserResponseDTO userDTO = new UserResponseDTO(
+                    updatedUser.getId(),
+                    updatedUser.getName(),
+                    updatedUser.getUsername(),
+                    updatedUser.getEmail(),
+                    updatedUser.getCpf(),
+                    updatedUser.getPhoto(),
+                    updatedUser.getPhone(),
+                    updatedUser.getToken(),
+                    updatedUser.getActive(),
+                    updatedUser.getAdmin());
+            
+            DefaultResponseDTO<UserResponseDTO> response = new DefaultResponseDTO<>(
+                    "Usuário atualizado com sucesso!",
+                    userDTO);
+            return ResponseEntity.ok(response);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            DefaultResponseDTO<String> errorResponse = new DefaultResponseDTO<>(
+                    "O registro foi alterado por outro usuário ou está desatualizado. Recarregue a página e tente novamente.",
+                    null);
+            return ResponseEntity.status(422).body(errorResponse);
+        } catch (Exception e) {
+            DefaultResponseDTO<String> errorResponse = new DefaultResponseDTO<>(
+                    e.getMessage(),
+                    null);
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     // Atualizar senha usuário existente

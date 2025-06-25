@@ -1,7 +1,7 @@
 package br.com.inovaparq.api_inovaparq.controller;
 
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyFullRequestDTO;
-// import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.DefaultResponseDTO;
 import br.com.inovaparq.api_inovaparq.model.CompanyModel;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
 import br.com.inovaparq.api_inovaparq.repository.UserRepository;
@@ -9,11 +9,8 @@ import br.com.inovaparq.api_inovaparq.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-// import org.springframework.web.multipart.MultipartException;
-// import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -30,64 +27,109 @@ public class CompanyController {
     private UserRepository userRepository;
 
     @GetMapping("/list/{userId}")
-    public List<CompanyModel> listarTodas(@PathVariable Long userId) {
-        UserModel user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Usuário não encontrado com ID: " + userId));
+    public ResponseEntity<DefaultResponseDTO<?>> listarTodas(@PathVariable Long userId) {
+        try {
+            UserModel user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                            "Usuário não encontrado com ID: " + userId));
 
-        if (Boolean.TRUE.equals(user.getAdmin())) {
-            List<CompanyModel> empresas = companyService.findAllCompanies();
-            if (empresas.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
+            if (Boolean.TRUE.equals(user.getAdmin())) {
+                List<CompanyModel> empresas = companyService.findAllCompanies();
+                if (empresas.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(new DefaultResponseDTO<>("Nenhuma empresa encontrada", null));
+                }
+                return ResponseEntity.ok(new DefaultResponseDTO<>("Empresas listadas com sucesso", empresas));
+            } else {
+                CompanyModel empresa = user.getCompany();
+                if (empresa == null) {
+                    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(new DefaultResponseDTO<>("Nenhuma empresa encontrada", null));
+                }
+                return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa listada com sucesso", List.of(empresa)));
             }
-            return empresas;
-        } else {
-            CompanyModel empresa = user.getCompany();
-            if (empresa == null) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
-            }
-            return List.of(empresa);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(new DefaultResponseDTO<>(e.getReason(), null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>(e.getMessage(), null));
         }
     }
 
     // Buscar empresa por ID
     @GetMapping("/{id}")
-    public CompanyModel buscarPorId(@PathVariable Long id) {
-        Optional<CompanyModel> companyModel = companyService.findOnlyById(id);
-        return companyModel.orElse(null);
+    public ResponseEntity<DefaultResponseDTO<?>> buscarPorId(@PathVariable Long id) {
+        try {
+            Optional<CompanyModel> companyModel = companyService.findOnlyById(id);
+            if (companyModel.isPresent()) {
+                return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa encontrada com sucesso", companyModel.get()));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new DefaultResponseDTO<>("Empresa não encontrada", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>(e.getMessage(), null));
+        }
     }
 
     @PostMapping
-    public ResponseEntity<?> createCompany(@RequestBody CompanyFullRequestDTO requestDTO) {
+    public ResponseEntity<DefaultResponseDTO<?>> createCompany(@RequestBody CompanyFullRequestDTO requestDTO) {
         try {
             CompanyModel savedCompany = companyService.createCompany(requestDTO);
-            return ResponseEntity.ok(savedCompany);
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa criada com sucesso", savedCompany));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro inesperado: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>(e.getMessage(), null));
         }
     }
 
     // Atualizar empresa existente
     @PutMapping("/{id}")
-    public CompanyModel atualizarEmpresa(@PathVariable Long id, @RequestBody CompanyModel companyAtualizada) {
-        return companyService.updateCompany(id, companyAtualizada);
+    public ResponseEntity<DefaultResponseDTO<?>> atualizarEmpresa(@PathVariable Long id, @RequestBody CompanyModel companyAtualizada) {
+        try {
+            CompanyModel updated = companyService.updateCompany(id, companyAtualizada);
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa atualizada com sucesso", updated));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>("Erro ao atualizar empresa: " + e.getMessage(), null));
+        }
     }
 
     // Atualizar status empresa existente
     @PutMapping("/status/{id}")
-    public CompanyModel mudarStatusEmpresa(@PathVariable Long id, @RequestBody CompanyModel companyAtualizada) {
-        return companyService.updateStatusCompany(id, companyAtualizada);
+    public ResponseEntity<DefaultResponseDTO<?>> mudarStatusEmpresa(@PathVariable Long id, @RequestBody CompanyModel companyAtualizada) {
+        try {
+            CompanyModel updated = companyService.updateStatusCompany(id, companyAtualizada);
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Status da empresa atualizado com sucesso", updated));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>("Erro ao atualizar status da empresa: " + e.getMessage(), null));
+        }
     }
 
     // Deletar empresa
     @DeleteMapping("/{id}")
-    public void deletarEmpresa(@PathVariable Long id) {
-        companyService.deleteCompany(id);
+    public ResponseEntity<DefaultResponseDTO<?>> deletarEmpresa(@PathVariable Long id) {
+        try {
+            companyService.deleteCompany(id);
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa deletada com sucesso", null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>("Erro ao deletar empresa: " + e.getMessage(), null));
+        }
     }
 
     // Mudar status da empresa no kanban, recebendo o id e o novo slug da empresa
     @PutMapping("/kanban-status/{id}")
-    public CompanyModel mudarStatusKanban(@PathVariable Long id, @RequestParam String novoSlug) {
-        return companyService.updateKanbanStatus(id, novoSlug);
+    public ResponseEntity<DefaultResponseDTO<?>> mudarStatusKanban(@PathVariable Long id, @RequestParam String novoSlug) {
+        try {
+            CompanyModel updated = companyService.updateKanbanStatus(id, novoSlug);
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Status do kanban atualizado com sucesso", updated));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>("Erro ao atualizar status do kanban: " + e.getMessage(), null));
+        }
     }
 }
