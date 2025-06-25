@@ -1,6 +1,7 @@
 package br.com.inovaparq.api_inovaparq.controller;
 
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyFullRequestDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.CompanyResumoDTO;
 // import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
 import br.com.inovaparq.api_inovaparq.model.CompanyModel;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
@@ -30,23 +31,51 @@ public class CompanyController {
     private UserRepository userRepository;
 
     @GetMapping("/list/{userId}")
-    public List<CompanyModel> listarTodas(@PathVariable Long userId) {
+    public List<CompanyResumoDTO> listarTodas(@PathVariable Long userId) {
         UserModel user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                         "Usuário não encontrado com ID: " + userId));
 
         if (Boolean.TRUE.equals(user.getAdmin())) {
             List<CompanyModel> empresas = companyService.findAllCompanies();
+
             if (empresas.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
             }
-            return empresas;
+
+            return empresas.stream()
+                    .map(emp -> {
+                        String slugStatus = null;
+                        if (emp.getStatuses() != null && !emp.getStatuses().isEmpty()) {
+                            slugStatus = emp.getStatuses().get(0).getSlug(); // pega o primeiro slug
+                        }
+                        return new CompanyResumoDTO(
+                                emp.getId(),
+                                emp.getName(),
+                                emp.getResponsavel() != null ? emp.getResponsavel().getName() : null,
+                                slugStatus
+                        );
+                    })
+                    .toList();
+
         } else {
             CompanyModel empresa = user.getCompany();
+
             if (empresa == null) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
             }
-            return List.of(empresa);
+
+            String slugStatus = null;
+            if (empresa.getStatuses() != null && !empresa.getStatuses().isEmpty()) {
+                slugStatus = empresa.getStatuses().get(0).getSlug();
+            }
+
+            return List.of(new CompanyResumoDTO(
+                    empresa.getId(),
+                    empresa.getName(),
+                    empresa.getResponsavel() != null ? empresa.getResponsavel().getName() : null,
+                    slugStatus
+            ));
         }
     }
 
