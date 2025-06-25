@@ -73,7 +73,12 @@ public class CompanyModel {
     private String observacao;
 
     // Novo relacionamento com status da empresa
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+        name = "company_status_mapping",
+        joinColumns = @JoinColumn(name = "company_id"),
+        inverseJoinColumns = @JoinColumn(name = "status_id")
+    )
     private List<CompanyStatusModel> statuses;
 
     // Getters e Setters

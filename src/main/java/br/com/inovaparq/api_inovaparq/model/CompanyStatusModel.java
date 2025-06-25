@@ -1,12 +1,12 @@
 package br.com.inovaparq.api_inovaparq.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "company_status")
 public class CompanyStatusModel {
 
-    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -17,24 +17,18 @@ public class CompanyStatusModel {
     @Column(nullable = false)
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", nullable = true)
-    private CompanyModel company;
+    // Remova o relacionamento antigo @ManyToOne e substitua pelo ManyToMany correto
+    @ManyToMany(mappedBy = "statuses")
+    private List<CompanyModel> companies;
 
     public CompanyStatusModel() {}
-
-    public CompanyStatusModel(String slug, String title, CompanyModel company) {
-        this.slug = slug;
-        this.title = title;
-        this.company = company;
-    }
 
     public CompanyStatusModel(String slug, String title) {
         this.slug = slug;
         this.title = title;
-        this.company = null;
     }
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -59,11 +53,11 @@ public class CompanyStatusModel {
         this.title = title;
     }
 
-    public CompanyModel getCompany() {
-        return company;
+    public List<CompanyModel> getCompanies() {
+        return companies;
     }
 
-    public void setCompany(CompanyModel company) {
-        this.company = company;
+    public void setCompanies(List<CompanyModel> companies) {
+        this.companies = companies;
     }
 }

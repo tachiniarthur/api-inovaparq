@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,6 +100,21 @@ public class CompanyService {
             company.setResponsavel(savedResponsavel);
         }
 
+        // Status
+        Optional<CompanyStatusModel> optionalStatus = companyStatusRepository.findBySlug("in_progress");
+
+        if (optionalStatus.isPresent()) {
+            CompanyStatusModel status = optionalStatus.get();
+
+            if (company.getStatuses() == null) {
+                company.setStatuses(new ArrayList<>());
+            }
+
+            company.getStatuses().add(status); // só adiciona, não precisa setar o company
+        } else {
+            throw new RuntimeException("Status 'in_progress' não encontrado");
+        }
+
         return companyRepository.save(company);
     }
 
@@ -153,11 +169,14 @@ public class CompanyService {
     public CompanyModel updateKanbanStatus(Long id, String slug) {
         CompanyModel company = companyRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Empresa não encontrada com ID: " + id));
+        
         CompanyStatusModel status = companyStatusRepository.findBySlug(slug)
             .orElseThrow(() -> new RuntimeException("Status não encontrado para o slug: " + slug));
+
         company.getStatuses().clear();
         company.getStatuses().add(status);
-        status.setCompany(company);
+
         return companyRepository.save(company);
     }
+
 }
