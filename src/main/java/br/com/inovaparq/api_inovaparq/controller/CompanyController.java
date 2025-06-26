@@ -3,6 +3,7 @@ package br.com.inovaparq.api_inovaparq.controller;
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyFullRequestDTO;
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyResumoDTO;
 import br.com.inovaparq.api_inovaparq.controller.dto.DefaultResponseDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.KanbanStatusDTO;
 import br.com.inovaparq.api_inovaparq.controller.dto.company_view.DocumentosDTO;
 import br.com.inovaparq.api_inovaparq.controller.dto.company_view.EnderecoDTO;
 import br.com.inovaparq.api_inovaparq.controller.dto.company_view.InformacoesBasicasDTO;
@@ -200,10 +201,21 @@ public class CompanyController {
 
     // Mudar status da empresa no kanban, recebendo o id e o novo slug da empresa
     @PutMapping("/kanban-status/{id}")
-    public ResponseEntity<DefaultResponseDTO<?>> mudarStatusKanban(@PathVariable Long id, @RequestParam String novoSlug) {
+    public ResponseEntity<DefaultResponseDTO<?>> mudarStatusKanban(
+            @PathVariable Long id,
+            @RequestBody KanbanStatusDTO dto) {
         try {
-            CompanyModel updated = companyService.updateKanbanStatus(id, novoSlug);
-            return ResponseEntity.ok(new DefaultResponseDTO<>("Status do kanban atualizado com sucesso", updated));
+            CompanyModel updated = companyService.updateKanbanStatus(id, dto.getStatus());
+            // Pegue apenas o status principal (ajuste conforme sua lógica)
+            String status = (updated.getStatuses() != null && !updated.getStatuses().isEmpty())
+                    ? updated.getStatuses().get(0).getSlug()
+                    : null;
+            KanbanStatusDTO responseDTO = new KanbanStatusDTO(
+                    updated.getId(),
+                    updated.getName(),
+                    status
+            );
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Status do kanban atualizado com sucesso", responseDTO));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new DefaultResponseDTO<>("Erro ao atualizar status do kanban: " + e.getMessage(), null));

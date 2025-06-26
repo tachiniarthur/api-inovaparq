@@ -91,16 +91,33 @@ public class UserService {
     public UserModel updateUser(Long id, UserModel userAtualizado) {
         return userRepository.findById(id)
                 .map(userModel -> {
-                    userModel.setUsername(userAtualizado.getUsername());
-                    userModel.setName(userAtualizado.getName());
-                    userModel.setEmail(userAtualizado.getEmail());
-                    userModel.setActive(userAtualizado.getActive());
+                    if (userAtualizado.getUsername() != null)
+                        userModel.setUsername(userAtualizado.getUsername());
+                    if (userAtualizado.getName() != null)
+                        userModel.setName(userAtualizado.getName());
+                    if (userAtualizado.getEmail() != null)
+                        userModel.setEmail(userAtualizado.getEmail());
+                    if (userAtualizado.getCpf() != null)
+                        userModel.setCpf(userAtualizado.getCpf());
+                    if (userAtualizado.getPhoto() != null)
+                        userModel.setPhoto(userAtualizado.getPhoto());
+                    if (userAtualizado.getPhone() != null && !userAtualizado.getPhone().isEmpty())
+                        userModel.setPhone(userAtualizado.getPhone());
+                    if (userAtualizado.getToken() != null)
+                        userModel.setToken(userAtualizado.getToken());
+                    if (userAtualizado.getActive() != null)
+                        userModel.setActive(userAtualizado.getActive());
+                    if (userAtualizado.getAdmin() != null)
+                        userModel.setAdmin(userAtualizado.getAdmin());
+                    if (userAtualizado.getRole() != null)
+                        userModel.setRole(userAtualizado.getRole());
+                    if (userAtualizado.getbirthdate() != null)
+                        userModel.setbirthdate(userAtualizado.getbirthdate());
+                    if (userAtualizado.getCompany() != null)
+                        userModel.setCompany(userAtualizado.getCompany());
                     return userRepository.save(userModel);
                 })
-                .orElseGet(() -> {
-                    userAtualizado.setId(id);
-                    return userRepository.save(userAtualizado);
-                });
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
     }
 
     public UserModel updatePasswordUser(Long id, String password) {
