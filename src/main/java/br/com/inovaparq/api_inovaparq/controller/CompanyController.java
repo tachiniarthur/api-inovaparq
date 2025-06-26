@@ -2,6 +2,11 @@ package br.com.inovaparq.api_inovaparq.controller;
 
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyFullRequestDTO;
 import br.com.inovaparq.api_inovaparq.controller.dto.CompanyResumoDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.DefaultResponseDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.company_view.DocumentosDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.company_view.EnderecoDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.company_view.InformacoesBasicasDTO;
+import br.com.inovaparq.api_inovaparq.controller.dto.company_view.RepresentanteLegalDTO;
 // import br.com.inovaparq.api_inovaparq.controller.dto.CompanyRequestDTO;
 import br.com.inovaparq.api_inovaparq.model.CompanyModel;
 import br.com.inovaparq.api_inovaparq.model.UserModel;
@@ -28,65 +33,117 @@ public class CompanyController {
     private UserRepository userRepository;
 
     @GetMapping("/list/{userId}")
-    public List<CompanyResumoDTO> listarTodas(@PathVariable Long userId) {
-        UserModel user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Usuário não encontrado com ID: " + userId));
+    public ResponseEntity<DefaultResponseDTO<?>> listarTodas(@PathVariable Long userId) {
+        try {
+            UserModel user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                            "Usuário não encontrado com ID: " + userId));
 
-        if (Boolean.TRUE.equals(user.getAdmin())) {
-            List<CompanyModel> empresas = companyService.findAllCompanies();
+            if (Boolean.TRUE.equals(user.getAdmin())) {
+                List<CompanyModel> empresas = companyService.findAllCompanies();
 
-            if (empresas.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
+                if (empresas.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(new DefaultResponseDTO<>("Nenhuma empresa encontrada", null));
+                }
+
+                List<CompanyResumoDTO> resultado = empresas.stream()
+                        .map(emp -> {
+                            String slugStatus = null;
+                            if (emp.getStatuses() != null && !emp.getStatuses().isEmpty()) {
+                                slugStatus = emp.getStatuses().get(0).getSlug();
+                            }
+                            return new CompanyResumoDTO(
+                                    emp.getId(),
+                                    emp.getName(),
+                                    emp.getResponsavel() != null ? emp.getResponsavel().getName() : null,
+                                    slugStatus
+                            );
+                        })
+                        .toList();
+
+                return ResponseEntity.ok(new DefaultResponseDTO<>("Empresas listadas com sucesso", resultado));
+
+            } else {
+                CompanyModel empresa = user.getCompany();
+
+                if (empresa == null) {
+                    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                            .body(new DefaultResponseDTO<>("Nenhuma empresa encontrada", null));
+                }
+
+                String slugStatus = null;
+                if (empresa.getStatuses() != null && !empresa.getStatuses().isEmpty()) {
+                    slugStatus = empresa.getStatuses().get(0).getSlug();
+                }
+
+                CompanyResumoDTO resumo = new CompanyResumoDTO(
+                        empresa.getId(),
+                        empresa.getName(),
+                        empresa.getResponsavel() != null ? empresa.getResponsavel().getName() : null,
+                        slugStatus
+                );
+
+                return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa listada com sucesso", List.of(resumo)));
             }
 
-            return empresas.stream()
-                    .map(emp -> {
-                        String slugStatus = null;
-                        if (emp.getStatuses() != null && !emp.getStatuses().isEmpty()) {
-                            slugStatus = emp.getStatuses().get(0).getSlug(); // pega o primeiro slug
-                        }
-                        return new CompanyResumoDTO(
-                                emp.getId(),
-                                emp.getName(),
-                                emp.getResponsavel() != null ? emp.getResponsavel().getName() : null,
-                                slugStatus
-                        );
-                    })
-                    .toList();
-
-        } else {
-            CompanyModel empresa = user.getCompany();
-
-            if (empresa == null) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Nenhuma empresa encontrada");
-            }
-
-            String slugStatus = null;
-            if (empresa.getStatuses() != null && !empresa.getStatuses().isEmpty()) {
-                slugStatus = empresa.getStatuses().get(0).getSlug();
-            }
-
-            return List.of(new CompanyResumoDTO(
-                    empresa.getId(),
-                    empresa.getName(),
-                    empresa.getResponsavel() != null ? empresa.getResponsavel().getName() : null,
-                    slugStatus
-            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new DefaultResponseDTO<>(e.getMessage(), null));
         }
     }
 
-    // Buscar empresa por ID
     @GetMapping("/{id}")
-    public ResponseEntity<DefaultResponseDTO<?>> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<DefaultResponseDTO<?>> buscarPorId(
+            @PathVariable Long id,
+            @RequestParam String section) {
         try {
-            Optional<CompanyModel> companyModel = companyService.findOnlyById(id);
-            if (companyModel.isPresent()) {
-                return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa encontrada com sucesso", companyModel.get()));
-            } else {
+            Optional<CompanyModel> optionalCompany = companyService.findOnlyById(id);
+            if (optionalCompany.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new DefaultResponseDTO<>("Empresa não encontrada", null));
             }
+
+            CompanyModel company = optionalCompany.get();
+
+            return switch (section.toLowerCase()) {
+                case "informacoes-basicas" -> {
+                    InformacoesBasicasDTO dto = new InformacoesBasicasDTO(
+                            company.getId(), company.getName(), company.getCnpj(), company.getAtivo(),
+                            company.getTelefone(), company.getEmail(), company.getSite()
+                    );
+                    yield ResponseEntity.ok(new DefaultResponseDTO<>("Informações básicas encontradas", dto));
+                }
+
+                case "endereco" -> {
+                    EnderecoDTO dto = new EnderecoDTO(
+                            company.getCep(), company.getLogradouro(), company.getNumero(), company.getComplemento(),
+                            company.getBairro(), company.getCidade(), company.getUf()
+                    );
+                    yield ResponseEntity.ok(new DefaultResponseDTO<>("Endereço encontrado", dto));
+                }
+
+                case "representante-legal" -> {
+                    UserModel resp = company.getResponsavel();
+                    RepresentanteLegalDTO dto = new RepresentanteLegalDTO(
+                            resp != null ? resp.getName() : null,
+                            resp != null ? resp.getEmail() : null,
+                            resp != null ? resp.getPhone() : null
+                    );
+                    yield ResponseEntity.ok(new DefaultResponseDTO<>("Representante legal encontrado", dto));
+                }
+
+                case "documentos" -> {
+                    DocumentosDTO dto = new DocumentosDTO(
+                            company.getAlvaraFuncionamento(), company.getInscricaoEstadualArquivo(),
+                            company.getComprovanteEndereco(), company.getObservacao()
+                    );
+                    yield ResponseEntity.ok(new DefaultResponseDTO<>("Documentos encontrados", dto));
+                }
+
+                default -> ResponseEntity.badRequest().body(new DefaultResponseDTO<>("Seção inválida", null));
+            };
+
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new DefaultResponseDTO<>(e.getMessage(), null));
@@ -96,8 +153,8 @@ public class CompanyController {
     @PostMapping
     public ResponseEntity<DefaultResponseDTO<?>> createCompany(@RequestBody CompanyFullRequestDTO requestDTO) {
         try {
-            CompanyModel savedCompany = companyService.createCompany(requestDTO);
-            return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa criada com sucesso", savedCompany));
+            companyService.createCompany(requestDTO);
+            return ResponseEntity.ok(new DefaultResponseDTO<>("Empresa criada com sucesso", null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new DefaultResponseDTO<>(e.getMessage(), null));
