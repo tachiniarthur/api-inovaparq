@@ -6,7 +6,7 @@ public class UserCreateDTO {
     private String password;
     private String confirm_password;
     private String email;
-    private String cpf;  
+    private String cpf;
 
     public String getName() {
         return name;

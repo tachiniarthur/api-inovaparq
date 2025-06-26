@@ -128,6 +128,7 @@ public class CompanyController {
                     RepresentanteLegalDTO dto = new RepresentanteLegalDTO(
                             resp != null ? resp.getName() : null,
                             resp != null ? resp.getEmail() : null,
+                            resp != null ? resp.getCpf() : null,
                             resp != null ? resp.getPhone() : null
                     );
                     yield ResponseEntity.ok(new DefaultResponseDTO<>("Representante legal encontrado", dto));
