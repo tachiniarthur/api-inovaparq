@@ -2,20 +2,24 @@ package br.com.inovaparq.api_inovaparq.config;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Bean;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class JacksonConfig {
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.getFactory().setStreamReadConstraints(
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @PostConstruct
+    public void setUp() {
+        objectMapper.getFactory().setStreamReadConstraints(
             StreamReadConstraints.builder()
                 .maxStringLength(50_000_000)
                 .build()
         );
-        return mapper;
+        objectMapper.registerModule(new JavaTimeModule());
     }
 }

@@ -141,11 +141,11 @@ public class UserModel {
         this.role = role;
     }
 
-    public LocalDate getbirthdate() {
+    public LocalDate getBirthdate() {
         return birthdate;
     }
 
-    public void setbirthdate(LocalDate birthdate) {
+    public void setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
     }
 

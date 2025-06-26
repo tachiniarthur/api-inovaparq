@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -45,7 +46,8 @@ public class UserController {
                         user.getPhone(),
                         user.getToken(),
                         user.getActive(),
-                        user.getAdmin()))
+                        user.getAdmin(), 
+                        user.getBirthdate()))
                 .collect(Collectors.toList());
         
         DefaultResponseDTO<List<UserResponseDTO>> response = new DefaultResponseDTO<>(
@@ -69,7 +71,9 @@ public class UserController {
                             user.getPhone(),
                             user.getToken(),
                             user.getActive(),
-                            user.getAdmin());
+                            user.getAdmin(),
+                            user.getBirthdate()
+                            );
                     DefaultResponseDTO<UserResponseDTO> response = new DefaultResponseDTO<>(
                             "Usuário encontrado com sucesso!",
                             userDTO);
@@ -92,6 +96,11 @@ public class UserController {
                     e.getMessage(),
                     null);
             return ResponseEntity.badRequest().body(errorResponse);
+        } catch (DataIntegrityViolationException e) {
+            DefaultResponseDTO<String> errorResponse = new DefaultResponseDTO<>(
+                    "Já existe um usuário com o mesmo username, email ou CPF.",
+                    null);
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
@@ -112,7 +121,8 @@ public class UserController {
                     updatedUser.getPhone(),
                     updatedUser.getToken(),
                     updatedUser.getActive(),
-                    updatedUser.getAdmin());
+                    updatedUser.getAdmin(),
+                    updatedUser.getBirthdate());
             
             DefaultResponseDTO<UserResponseDTO> response = new DefaultResponseDTO<>(
                     "Usuário atualizado com sucesso!",
@@ -157,7 +167,8 @@ public class UserController {
                 updatedUser.getPhone(),
                 updatedUser.getToken(),
                 updatedUser.getActive(),
-                updatedUser.getAdmin());
+                updatedUser.getAdmin(),
+                updatedUser.getBirthdate());
         
         DefaultResponseDTO<UserResponseDTO> response = new DefaultResponseDTO<>(
                 updatedUser.getActive() ? "Usuário ativado com sucesso!" : "Usuário desativado com sucesso!",

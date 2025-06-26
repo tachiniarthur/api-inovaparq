@@ -51,7 +51,8 @@ public class LoginController {
                     user.getPhone(),
                     user.getToken(),
                     user.getActive(),
-                    user.getAdmin()
+                    user.getAdmin(),
+                    user.getBirthdate()
                 );
 
                 return ResponseEntity.ok(responseDTO);

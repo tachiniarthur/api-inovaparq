@@ -35,21 +35,27 @@ public class UserService {
 
 
     public UserResponseDTO newUser(UserCreateDTO dto) {
+        System.out.println("Iniciando criação de usuário: " + dto.getUsername());
+
         if (!dto.getPassword().equals(dto.getConfirm_password())) {
+            System.out.println("Senhas não conferem");
             throw new IllegalArgumentException("Passwords do not match.");
         }
 
-        // Verificações de unicidade
         if (userRepository.existsByUsername(dto.getUsername())) {
+            System.out.println("Username já está em uso");
             throw new IllegalArgumentException("Username já está em uso.");
         }
-        if (dto.getEmail() != null && userRepository.existsByEmail(dto.getEmail())) {
+        if (dto.getEmail() != null && !dto.getEmail().isEmpty() && userRepository.existsByEmail(dto.getEmail())) {
+            System.out.println("Email já está em uso");
             throw new IllegalArgumentException("Email já está em uso.");
         }
-        if (dto.getCpf() != null && userRepository.existsByCpf(dto.getCpf())) {
+        if (dto.getCpf() != null && !dto.getCpf().isEmpty() && userRepository.existsByCpf(dto.getCpf())) {
+            System.out.println("CPF já está em uso");
             throw new IllegalArgumentException("CPF já está em uso.");
         }
 
+        // Somente aqui salva!
         UserModel user = new UserModel();
         user.setName(dto.getName());
         user.setUsername(dto.getUsername());
@@ -60,11 +66,12 @@ public class UserService {
         String token = UUID.randomUUID().toString();
         user.setToken(token);
 
-        // Adicione estes campos se existirem no DTO
         user.setEmail(dto.getEmail());
         user.setCpf(dto.getCpf());
 
         UserModel saved = userRepository.save(user);
+
+        System.out.println("Usuário criado com sucesso: " + saved.getUsername());
 
         return new UserResponseDTO(
             saved.getId(),
@@ -76,7 +83,8 @@ public class UserService {
             saved.getPhone(),
             saved.getToken(),
             saved.getActive(),
-            saved.getAdmin()
+            saved.getAdmin(),
+            saved.getBirthdate()
         );
     }
 
@@ -111,8 +119,8 @@ public class UserService {
                         userModel.setAdmin(userAtualizado.getAdmin());
                     if (userAtualizado.getRole() != null)
                         userModel.setRole(userAtualizado.getRole());
-                    if (userAtualizado.getbirthdate() != null)
-                        userModel.setbirthdate(userAtualizado.getbirthdate());
+                    if (userAtualizado.getBirthdate() != null)
+                        userModel.setBirthdate(userAtualizado.getBirthdate());
                     if (userAtualizado.getCompany() != null)
                         userModel.setCompany(userAtualizado.getCompany());
                     return userRepository.save(userModel);
