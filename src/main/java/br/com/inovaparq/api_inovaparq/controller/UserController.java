@@ -1,10 +1,12 @@
 package br.com.inovaparq.api_inovaparq.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -104,13 +106,22 @@ public class UserController {
         }
     }
 
-    // Atualizar um usuário existente
     @PutMapping("/{id}")
     public ResponseEntity<DefaultResponseDTO<?>> atualizarUser(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @RequestBody UserModel userAtualizado) {
+
         try {
+            // Verifica se email já existe para outro usuário
+            Optional<UserModel> userComEmail = userService.findByEmail(userAtualizado.getEmail());
+
+            if (userComEmail.isPresent() && !userComEmail.get().getId().equals(id)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new DefaultResponseDTO<>("Já existe um usuário com esse email.", null));
+            }
+
             UserModel updatedUser = userService.updateUser(id, userAtualizado);
+
             UserResponseDTO userDTO = new UserResponseDTO(
                     updatedUser.getId(),
                     updatedUser.getName(),
@@ -123,11 +134,13 @@ public class UserController {
                     updatedUser.getActive(),
                     updatedUser.getAdmin(),
                     updatedUser.getBirthdate());
-            
+
             DefaultResponseDTO<UserResponseDTO> response = new DefaultResponseDTO<>(
                     "Usuário atualizado com sucesso!",
                     userDTO);
+
             return ResponseEntity.ok(response);
+
         } catch (ObjectOptimisticLockingFailureException e) {
             DefaultResponseDTO<String> errorResponse = new DefaultResponseDTO<>(
                     "O registro foi alterado por outro usuário ou está desatualizado. Recarregue a página e tente novamente.",
@@ -135,7 +148,7 @@ public class UserController {
             return ResponseEntity.status(422).body(errorResponse);
         } catch (Exception e) {
             DefaultResponseDTO<String> errorResponse = new DefaultResponseDTO<>(
-                    e.getMessage(),
+                    "Erro ao atualizar usuário: " + e.getMessage(),
                     null);
             return ResponseEntity.status(500).body(errorResponse);
         }

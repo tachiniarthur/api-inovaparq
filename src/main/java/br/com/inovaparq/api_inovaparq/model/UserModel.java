@@ -19,13 +19,13 @@ public class UserModel {
     @Column(unique = true)
     private String email;
 
-    @Column(unique = true, length = 11)
+    @Column(unique = true, length = 20)
     private String cpf;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "TEXT")
     private String photo;
 
-    @Column(length = 11)
+    @Column(length = 20)
     private String phone;
 
     @Column(length = 512)

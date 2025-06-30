@@ -94,9 +94,11 @@ public class CompanyService {
             novoResponsavel.setName(responsibleData.getName());
             novoResponsavel.setEmail(responsibleData.getEmail());
             novoResponsavel.setPhone(responsibleData.getPhone());
+            novoResponsavel.setCpf(responsibleData.getCpf());
             // Adicione outros campos necessários conforme o modelo UserModel
 
             UserModel savedResponsavel = userRepository.save(novoResponsavel);
+            userRepository.flush();
             company.setResponsavel(savedResponsavel);
         }
 

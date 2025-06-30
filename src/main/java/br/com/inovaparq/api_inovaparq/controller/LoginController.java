@@ -32,6 +32,7 @@ public class LoginController {
 
     @PostMapping
     public ResponseEntity<?> efetuarLogin(@RequestBody LoginRequest loginRequest) {
+        System.out.println("Login attempt for user: " + loginRequest.getUsername());
         Optional<UserModel> userModel = UserService.findOnyByUserName(loginRequest.getUsername());
 
         if (userModel.isPresent()) {

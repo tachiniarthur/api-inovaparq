@@ -33,6 +33,9 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public Optional<UserModel> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
     public UserResponseDTO newUser(UserCreateDTO dto) {
         System.out.println("Iniciando criação de usuário: " + dto.getUsername());
@@ -131,11 +134,11 @@ public class UserService {
                 userModel.setPhone(userAtualizado.getPhone());
                 userModel.setToken(userAtualizado.getToken());
                 userModel.setActive(userAtualizado.getActive());
-                userModel.setAdmin(userAtualizado.getAdmin());
+                userModel.setAdmin(false);
                 userModel.setBirthdate(userAtualizado.getBirthdate());
                 userModel.setRole(userAtualizado.getRole());
                 userModel.setCompany(userAtualizado.getCompany());
-                // Não atualize a senha aqui, a não ser que seja uma rota específica
+                userModel.setPassword(passwordEncoder.encode(userAtualizado.getPassword()));
 
                 return userRepository.save(userModel);
             })
