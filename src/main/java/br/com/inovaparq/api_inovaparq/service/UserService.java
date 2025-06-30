@@ -98,34 +98,48 @@ public class UserService {
 
     public UserModel updateUser(Long id, UserModel userAtualizado) {
         return userRepository.findById(id)
-                .map(userModel -> {
-                    if (userAtualizado.getUsername() != null)
-                        userModel.setUsername(userAtualizado.getUsername());
-                    if (userAtualizado.getName() != null)
-                        userModel.setName(userAtualizado.getName());
-                    if (userAtualizado.getEmail() != null)
-                        userModel.setEmail(userAtualizado.getEmail());
-                    if (userAtualizado.getCpf() != null)
-                        userModel.setCpf(userAtualizado.getCpf());
-                    if (userAtualizado.getPhoto() != null)
-                        userModel.setPhoto(userAtualizado.getPhoto());
-                    if (userAtualizado.getPhone() != null && !userAtualizado.getPhone().isEmpty())
-                        userModel.setPhone(userAtualizado.getPhone());
-                    if (userAtualizado.getToken() != null)
-                        userModel.setToken(userAtualizado.getToken());
-                    if (userAtualizado.getActive() != null)
-                        userModel.setActive(userAtualizado.getActive());
-                    if (userAtualizado.getAdmin() != null)
-                        userModel.setAdmin(userAtualizado.getAdmin());
-                    if (userAtualizado.getRole() != null)
-                        userModel.setRole(userAtualizado.getRole());
-                    if (userAtualizado.getBirthdate() != null)
-                        userModel.setBirthdate(userAtualizado.getBirthdate());
-                    if (userAtualizado.getCompany() != null)
-                        userModel.setCompany(userAtualizado.getCompany());
-                    return userRepository.save(userModel);
-                })
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+            .map(userModel -> {
+                // Limpa formatação do CPF
+                String cpfLimpo = userAtualizado.getCpf() != null ? userAtualizado.getCpf().replaceAll("[^\\d]", "") : null;
+
+                // Verifica se já existe outro usuário com o mesmo username
+                if (userRepository.existsByUsername(userAtualizado.getUsername()) &&
+                    !userModel.getUsername().equals(userAtualizado.getUsername())) {
+                    throw new IllegalArgumentException("Já existe um usuário com esse username.");
+                }
+
+                // Verifica se já existe outro usuário com o mesmo email
+                if (userAtualizado.getEmail() != null && !userAtualizado.getEmail().isEmpty() &&
+                    userRepository.existsByEmail(userAtualizado.getEmail()) &&
+                    !userModel.getEmail().equals(userAtualizado.getEmail())) {
+                    throw new IllegalArgumentException("Já existe um usuário com esse e-mail.");
+                }
+
+                // Verifica se já existe outro usuário com o mesmo CPF
+                if (cpfLimpo != null && !cpfLimpo.isEmpty() &&
+                    userRepository.existsByCpf(cpfLimpo) &&
+                    !java.util.Objects.equals(userModel.getCpf(), cpfLimpo)) {
+                    throw new IllegalArgumentException("Já existe um usuário com esse CPF.");
+                }
+
+                // Atualiza os campos
+                userModel.setName(userAtualizado.getName());
+                userModel.setUsername(userAtualizado.getUsername());
+                userModel.setEmail(userAtualizado.getEmail());
+                userModel.setCpf(cpfLimpo);
+                userModel.setPhoto(userAtualizado.getPhoto());
+                userModel.setPhone(userAtualizado.getPhone());
+                userModel.setToken(userAtualizado.getToken());
+                userModel.setActive(userAtualizado.getActive());
+                userModel.setAdmin(userAtualizado.getAdmin());
+                userModel.setBirthdate(userAtualizado.getBirthdate());
+                userModel.setRole(userAtualizado.getRole());
+                userModel.setCompany(userAtualizado.getCompany());
+                // Não atualize a senha aqui, a não ser que seja uma rota específica
+
+                return userRepository.save(userModel);
+            })
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
     }
 
     public UserModel updatePasswordUser(Long id, String password) {
